@@ -42,6 +42,11 @@
             <artifactId>yuicompressor</artifactId>
             <version>2.4.8</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.depsypher</groupId>
+            <artifactId>pngtastic</artifactId>
+            <version>1.5</version>
+        </dependency>    
     </dependencies>
         
 </project>

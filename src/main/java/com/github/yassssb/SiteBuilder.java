@@ -28,10 +28,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.io.FileUtils;
 
 /**
- * JSiteBuilder
+ * SiteBuilder
  */
 public class SiteBuilder
 {
@@ -42,6 +41,10 @@ public class SiteBuilder
     private static final String ASSETS_PATH = "/src/assets/";
     private static final String OUTPUT_PATH = "/dist/";
 
+    /**
+     * The main 
+     * @param args command line arguments 
+     */
     public static void main(String[] args)
     {
         try
@@ -50,6 +53,7 @@ public class SiteBuilder
             if (args.length == 0)
             {
                 System.out.println("The site path should be given at first argument.");
+                return;
             }
             String strSitePath = args[0];
             String strSiteFile = strSitePath + SITE_FILE;
@@ -64,24 +68,19 @@ public class SiteBuilder
             generatePages(strSitePath, site.getPages());
 
         }
-        catch (IOException ex)
-        {
-            ex.printStackTrace();
-        }
-        catch (TemplateException ex)
+        catch (IOException | TemplateException ex)
         {
             ex.printStackTrace();
         }
 
     }
 
-    private static void copyAssets(String strSitePath) throws IOException
-    {
-        File srcDir = new File(strSitePath + ASSETS_PATH);
-        File destDir = new File(strSitePath + OUTPUT_PATH);
-        FileUtils.copyDirectory(srcDir, destDir);
-    }
-
+    /**
+     * Initialize the Freemarker template engine
+     * @param strTemplatePath The template path
+     * @return The FM configuration
+     * @throws IOException if an error occurs
+     */
     private static Configuration getFreemarkerConfig(String strTemplatePath) throws IOException
     {
         // Create your Configuration instance, and specify if up to what FreeMarker
@@ -110,6 +109,11 @@ public class SiteBuilder
         return cfg;
     }
 
+    /**
+     * Extrat the data name from the YAML filename (removing the extension)
+     * @param strDataFile The YAML filename
+     * @return The data name
+     */
     private static Object getDataName(String strDataFile)
     {
         // Remove the file extension
@@ -121,6 +125,15 @@ public class SiteBuilder
         return strDataFile;
     }
 
+    
+    /**
+     * Generate site pages
+     * @param strSitePath The site path
+     * @param pages The list of pages to generate
+     * @throws MalformedTemplateNameException if an error occurs
+     * @throws IOException if an error occurs
+     * @throws TemplateException  if an error occurs
+     */
     private static void generatePages(String strSitePath, List<Page> pages) throws MalformedTemplateNameException, IOException, TemplateException
     {
         // Initialize Freemarker
@@ -129,6 +142,7 @@ public class SiteBuilder
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
+        System.out.println( "\n\n ############# Generating pages ##############\n" );
         for (Page page : pages)
         {
             Template template = cfg.getTemplate(page.getTemplate());
@@ -144,9 +158,16 @@ public class SiteBuilder
             String strOutputPath = strSitePath + OUTPUT_PATH;
             FileWriter out = new FileWriter(strOutputPath + page.getPage());
             template.process(model, out);
+            System.out.println( "Generating page " + page.getPage());
         }
     }
 
+    /**
+     * Read the SiteFile in YAML format (site.yml)
+     * @param strSiteFile The site file path
+     * @return a Site object
+     * @throws IOException if an error occurs 
+     */
     private static Site readYamlSiteFile(String strSiteFile) throws IOException
     {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());

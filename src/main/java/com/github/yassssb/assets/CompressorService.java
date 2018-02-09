@@ -16,6 +16,7 @@
 package com.github.yassssb.assets;
 
 
+import com.github.yassssb.util.Utils;
 import com.yahoo.platform.yui.compressor.CssCompressor;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 import java.io.File;
@@ -23,10 +24,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import org.mozilla.javascript.ErrorReporter;
 
 /**
- * Minify
+ * CompressorService : minify and merge CSS and Javascripts
  */
 public class CompressorService
 {
@@ -34,8 +36,14 @@ public class CompressorService
     public static final int CSS = 1;
     public static final int JS = 2;
 
-
-    public static void compress( String strRootPath, CompressorConfig config, boolean bGlobal ) throws IOException
+    /**
+     * Compress files found in a directory 
+     * @param strRootPath The directory
+     * @param config The compression config
+     * @param bMerged If files should be merged into a single file
+     * @throws IOException If an error occurs
+     */
+    public static void compress( String strRootPath, CompressorConfig config, boolean bMerged ) throws IOException
     {
         String strExtension = config.getExtension();
         String strInputPath = strRootPath + config.getInputDir();
@@ -43,9 +51,10 @@ public class CompressorService
         String[] files = getFiles( strInputPath, strExtension );
         FileWriter out = null;
         String strOutputFilePath = "";
-        if( bGlobal )
+        if( bMerged )
         {
             strOutputFilePath = strOutputPath + File.separator + config.getGlobalFileName();
+            Utils.makeDir( strOutputPath );
             out = new FileWriter( strOutputFilePath );
         }
         for( String file : files )
@@ -60,7 +69,7 @@ public class CompressorService
             }
             FileReader in = new FileReader( strInputFilePath );
             
-            if( !bGlobal )
+            if( !bMerged )
             {
                 strOutputFilePath = strOutputPath + File.separator + strOutputFilename;
                 out = new FileWriter( strOutputFilePath );
@@ -68,7 +77,7 @@ public class CompressorService
             if( ! bCompressed )
             {
                 System.out.print( "Compression of '" + strInputFilePath );
-                if( bGlobal )
+                if( bMerged )
                 {
                     System.out.println( "' and append content to file '" +  strOutputFilePath + "'" );
                 }
@@ -87,13 +96,13 @@ public class CompressorService
                     case JS:
                         ErrorReporter reporter = new JsErrorReporter( strInputFilePath );
                         JavaScriptCompressor compressorJS = new JavaScriptCompressor(in, reporter );
-                        compressorJS.compress( out, CSS, bGlobal, bGlobal, bGlobal, bGlobal );
+                        compressorJS.compress( out, CSS, bMerged, bMerged, bMerged, bMerged );
                         break;
                 }
             }
             else
             {
-                if( bGlobal )
+                if( bMerged )
                 {
                     System.out.println( "Append content of file '" + strInputFilePath + "' into file '"  + strOutputFilePath + "'" );
                 }
@@ -104,38 +113,65 @@ public class CompressorService
                 int c;
                 while( ( c = in.read()) != -1 )
                 {
-                    out.write( c );
+                    if( out != null )
+                    {
+                        out.write( c );
+                    }
                 }
             }
-            if( !bGlobal )
+            if( !bMerged )
+            {
+                if( out != null )
+                {
+                    out.close();
+                }
+            }
+        }
+        if( bMerged )
+        {
+            if( out != null )
             {
                 out.close();
             }
         }
-        if( bGlobal )
-        {
-            out.close();
-        }
 
     }
 
+    /**
+     * Gets all files with a given extension from a given directory 
+     * @param directory The directory
+     * @param extension The file extension
+     * @return The files list
+     */
     private static String[] getFiles( String directory, String extension )
     {
         GenericExtFilter filter = new GenericExtFilter( extension );
         File dir = new File( directory );
-        return dir.list( filter );
+        String[] files = dir.list( filter );
+        Arrays.sort( files );
+        return files;
     }
 
+    /**
+     * Filename filter by extension
+     */
     public static class GenericExtFilter implements FilenameFilter
     {
 
         private String ext;
 
+        /**
+         * Constructor
+         * @param ext The filename extension
+         */
         public GenericExtFilter( String ext )
         {
             this.ext = ext;
         }
 
+        /**
+         * {@inheritDoc }
+         */
         @Override
         public boolean accept( File dir, String name )
         {

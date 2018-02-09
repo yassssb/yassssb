@@ -15,13 +15,16 @@
 
 package com.github.yassssb.assets;
 
+import com.github.yassssb.assets.images.ImagesOptimizer;
+import com.github.yassssb.util.Utils;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 /**
- *
- * @author pierre
+ * AssetsManager 
  */
 public class AssetsManager 
 {
@@ -32,20 +35,25 @@ public class AssetsManager
     private static final String CSS_DIR = "css";
     private static final String JS_DIR = "js";
 
+    private static final String[] SPECIAL_ASSETS_DIRECTORIES = { "css" , "js" , "images" }; 
+    
+    /**
+     * Deploy assets into dist directory
+     * @param strRootPath The source root path
+     * @throws IOException if an error occurs
+     */
     public static void deploy( String strRootPath ) throws IOException
     {
-        // Copy images
-        File srcDir = new File( strRootPath + ASSETS_PATH + IMAGES_DIR);
-        File destDir = new File( strRootPath + OUTPUT_PATH + IMAGES_DIR);
-        FileUtils.copyDirectory(srcDir, destDir);
+        System.out.println( "\n\n ############# DEPLOYING ASSETS ##############\n" );
 
+        // Optimize and copy images
+        System.out.println( "\n\n ############# Optimizing PNG and JPEG images ##############\n" );
+        File dirImages = new File( strRootPath + ASSETS_PATH + IMAGES_DIR );
+        ImagesOptimizer.processDirectory( dirImages , "/" , strRootPath + OUTPUT_PATH + IMAGES_DIR );
 
-        // Copy images
-        srcDir = new File( strRootPath + ASSETS_PATH + FONTS_DIR);
-        destDir = new File( strRootPath + OUTPUT_PATH + FONTS_DIR);
-        FileUtils.copyDirectory(srcDir, destDir);
 
         // Merge and minify CSS
+        System.out.println( "\n\n ############# Minification of CSS files into one global file ##############\n" );
         CompressorConfig configCSS = new CompressorConfig();
         configCSS.setExtension( ".css" );
         configCSS.setCompressor( CompressorService.CSS );
@@ -54,10 +62,10 @@ public class AssetsManager
         configCSS.setInputDir( ASSETS_PATH + CSS_DIR );
         configCSS.setOutputDir( OUTPUT_PATH + CSS_DIR );
 
-        System.out.println( "### Minification of CSS files into one global file" );
         CompressorService.compress( strRootPath, configCSS, true );
         
         // Merge and minify JS
+        System.out.println( "\n\n ############# Minification of JS files into one global file ##############\n" );
         CompressorConfig configJS = new CompressorConfig();
         configJS.setExtension( ".js" );
         configJS.setCompressor( CompressorService.JS );
@@ -66,8 +74,49 @@ public class AssetsManager
         configJS.setInputDir( ASSETS_PATH + JS_DIR );
         configJS.setOutputDir( OUTPUT_PATH + JS_DIR );
 
-        System.out.println( "### Minification of JS files into one global file" );
         CompressorService.compress( strRootPath, configJS, true );
         
+        // Copy other assets
+        System.out.println( "\n\n ############# Copy other assets files ##############\n" );
+        File dirAssets = new File( strRootPath + ASSETS_PATH );
+        copyDirectoryFiles( dirAssets , "" , strRootPath + OUTPUT_PATH );
+        
+        
     }
+    
+    /**
+     * Copy all assets files recursively 
+     * @param directory The current directory
+     * @param strRelativePath The relative path from the input root 
+     * @param strOutputPath The output root path
+     */
+    private static void copyDirectoryFiles( File directory , String strRelativePath , String strOutputPath ) 
+    {
+        File[] files = directory.listFiles();
+        List<String> listNoFollowDirectories = Arrays.asList( SPECIAL_ASSETS_DIRECTORIES );
+
+        for( File file : files )
+        {
+            try
+            {
+                if( file.isDirectory() )
+                {
+                    if( ! listNoFollowDirectories.contains(file.getName()) )
+                    {
+                        copyDirectoryFiles( file , strRelativePath +  file.getName() + File.separator , strOutputPath );
+                    }
+                }
+                else
+                {
+                    Utils.copyFile( file , strOutputPath + strRelativePath );
+                    System.out.println( "Copying "+ file.getAbsolutePath() + " to " + strOutputPath + strRelativePath );
+                }
+            }
+            catch( IOException ex )
+            {
+                ex.printStackTrace();
+            }
+        }
+    }
+
 }
