@@ -19,8 +19,10 @@ import com.github.yassssb.assets.images.ImagesOptimizer;
 import com.github.yassssb.util.Utils;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -34,23 +36,36 @@ public class AssetsManager
     private static final String FONTS_DIR = "fonts";
     private static final String CSS_DIR = "css";
     private static final String JS_DIR = "js";
+    private static final String CONFIG_OPTIMIZE_IMAGE = "optimizeImages";
+    private static final String FALSE = "false";
 
-    private static final String[] SPECIAL_ASSETS_DIRECTORIES = { "css" , "js" , "images" }; 
+    private static List<String> _listNoFollowDirs;
     
     /**
      * Deploy assets into dist directory
      * @param strRootPath The source root path
      * @throws IOException if an error occurs
      */
-    public static void deploy( String strRootPath ) throws IOException
+    public static void deploy( String strRootPath , Map<String, Object> config ) throws IOException
     {
         System.out.println( "\n\n ############# DEPLOYING ASSETS ##############\n" );
+        _listNoFollowDirs = new ArrayList<>();
+        _listNoFollowDirs.add("css");
+        _listNoFollowDirs.add("js");
 
         // Optimize and copy images
         System.out.println( "\n\n ############# Optimizing PNG and JPEG images ##############\n" );
-        File dirImages = new File( strRootPath + ASSETS_PATH + IMAGES_DIR );
-        ImagesOptimizer.processDirectory( dirImages , "/" , strRootPath + OUTPUT_PATH + IMAGES_DIR );
-
+        boolean bOptimizeImages = (boolean) config.get( CONFIG_OPTIMIZE_IMAGE );
+        if( !bOptimizeImages )
+        {
+            System.out.println( "- Optimization is disabled in site.yml" );
+        }
+        else
+        {   
+            _listNoFollowDirs.add( "images" );
+            File dirImages = new File( strRootPath + ASSETS_PATH + IMAGES_DIR );
+            ImagesOptimizer.processDirectory( dirImages , "/" , strRootPath + OUTPUT_PATH + IMAGES_DIR );
+        }
 
         // Merge and minify CSS
         System.out.println( "\n\n ############# Minification of CSS files into one global file ##############\n" );
@@ -93,7 +108,6 @@ public class AssetsManager
     private static void copyDirectoryFiles( File directory , String strRelativePath , String strOutputPath ) 
     {
         File[] files = directory.listFiles();
-        List<String> listNoFollowDirectories = Arrays.asList( SPECIAL_ASSETS_DIRECTORIES );
 
         for( File file : files )
         {
@@ -101,7 +115,7 @@ public class AssetsManager
             {
                 if( file.isDirectory() )
                 {
-                    if( ! listNoFollowDirectories.contains(file.getName()) )
+                    if( ! _listNoFollowDirs.contains(file.getName()) )
                     {
                         copyDirectoryFiles( file , strRelativePath +  file.getName() + File.separator , strOutputPath );
                     }

@@ -16,6 +16,7 @@
 package com.github.yassssb;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Site
@@ -23,6 +24,7 @@ import java.util.List;
 public class Site 
 {
     private List<Page> pages;
+    private Map<String,Object> config;
 
     /**
      * @return the pages
@@ -40,6 +42,22 @@ public class Site
         this.pages = pages;
     }
 
+    /**
+     * @return the config
+     */
+    public Map<String,Object> getConfig()
+    {
+        return config;
+    }
+
+    /**
+     * @param config the config to set
+     */
+    public void setConfig(Map<String,Object> config)
+    {
+        this.config = config;
+    }
+    
     @Override
     public String toString()
     {
@@ -53,7 +71,7 @@ public class Site
         }
         return super.toString(); //To change body of generated methods, choose Tools | Templates.
     }
-    
-    
+
+ 
     
 }

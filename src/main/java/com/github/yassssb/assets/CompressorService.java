@@ -110,14 +110,16 @@ public class CompressorService
                 {
                     System.out.println( "Copy content of file '" + strInputFilePath + "' into file '"  + strOutputFilePath + "'" );
                 }
-                int c;
-                while( ( c = in.read()) != -1 )
+                if( out != null )
                 {
-                    if( out != null )
+                    int c;
+                    while( ( c = in.read()) != -1 )
                     {
-                        out.write( c );
+                            out.write( c );
                     }
+                    out.write( ";\n" );  // prevent bad ending js
                 }
+                
             }
             if( !bMerged )
             {

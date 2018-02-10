@@ -62,7 +62,7 @@ public class SiteBuilder
             Site site = readYamlSiteFile(strSiteFile);
 
             // Copy assets
-            AssetsManager.deploy(strSitePath);
+            AssetsManager.deploy( strSitePath , site.getConfig() );
 
             // Generate pages
             generatePages(strSitePath, site.getPages());
