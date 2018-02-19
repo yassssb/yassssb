@@ -1,3 +1,5 @@
+[![codebeat badge](https://codebeat.co/badges/6d96fec7-fc34-43c7-87ff-408fc04e329d)](https://codebeat.co/projects/github-com-yassssb-yassssb-master)
+
 # Yassssb (Yet Another Super Simple Static Site Builder)
 
 Yassssb is a very simple tool that generate a static HTML site from templates and data files.
