@@ -62,7 +62,19 @@ Here is the template using the data
 ```
  
 
+# Build Yassssb
 
+Clone this project and build the yassssb.jar file with Maven using the following command :
+``` sh
+mvn clean compile assembly:single
+```
+
+# Run Yassssb
+
+Run Yassssb with the following command :
+``` sh
+java -jar yassssb.jar /my/site/root/path/
+```
 
 
       
