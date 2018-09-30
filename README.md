@@ -28,6 +28,11 @@ Here is the directory tree required :
 ``` yaml
 ## site.yml sample
 ---
+
+config:
+    optimizeImages: true  # true or false
+
+
 pages:
     - page: index.html               # The output page that will be generated into /dist directory 
       template: index.ftl            # The page template located into /src/pages/

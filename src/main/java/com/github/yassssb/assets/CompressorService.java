@@ -49,91 +49,94 @@ public class CompressorService
         String strInputPath = strRootPath + config.getInputDir();
         String strOutputPath = strRootPath + config.getOutputDir();
         String[] files = getFiles( strInputPath, strExtension );
-        FileWriter out = null;
-        String strOutputFilePath = "";
-        if( bMerged )
+        if( files != null )
         {
-            strOutputFilePath = strOutputPath + File.separator + config.getGlobalFileName();
-            Utils.makeDir( strOutputPath );
-            out = new FileWriter( strOutputFilePath );
-        }
-        for( String file : files )
-        {
-            String strInputFilePath = strInputPath + File.separator + file;
-            boolean bCompressed = true;
-            String strOutputFilename = file;
-            if( ! file.endsWith( config.getCompressedExtension() ))
+            FileWriter out = null;
+            String strOutputFilePath = "";
+            if( bMerged )
             {
-                strOutputFilename = file.replaceAll( strExtension, config.getCompressedExtension() );
-                bCompressed = false;
-            }
-            FileReader in = new FileReader( strInputFilePath );
-            
-            if( !bMerged )
-            {
-                strOutputFilePath = strOutputPath + File.separator + strOutputFilename;
+                strOutputFilePath = strOutputPath + File.separator + config.getGlobalFileName();
+                Utils.makeDir( strOutputPath );
                 out = new FileWriter( strOutputFilePath );
             }
-            if( ! bCompressed )
+            for( String file : files )
             {
-                System.out.print( "Compression of '" + strInputFilePath );
-                if( bMerged )
+                String strInputFilePath = strInputPath + File.separator + file;
+                boolean bCompressed = true;
+                String strOutputFilename = file;
+                if( ! file.endsWith( config.getCompressedExtension() ))
                 {
-                    System.out.println( "' and append content to file '" +  strOutputFilePath + "'" );
+                    strOutputFilename = file.replaceAll( strExtension, config.getCompressedExtension() );
+                    bCompressed = false;
                 }
-                else
-                {
-                    System.out.println( "' and create file '" +  strOutputFilePath + "'" );
-                }
-                    
-                switch( config.getCompressor() )
-                {
-                    case CSS:
-                        CssCompressor compressorCSS = new CssCompressor( in );
-                        compressorCSS.compress( out, 0 );
-                        break;
+                FileReader in = new FileReader( strInputFilePath );
 
-                    case JS:
-                        ErrorReporter reporter = new JsErrorReporter( strInputFilePath );
-                        JavaScriptCompressor compressorJS = new JavaScriptCompressor(in, reporter );
-                        compressorJS.compress( out, CSS, bMerged, bMerged, bMerged, bMerged );
-                        break;
-                }
-            }
-            else
-            {
-                if( bMerged )
+                if( !bMerged )
                 {
-                    System.out.println( "Append content of file '" + strInputFilePath + "' into file '"  + strOutputFilePath + "'" );
+                    strOutputFilePath = strOutputPath + File.separator + strOutputFilename;
+                    out = new FileWriter( strOutputFilePath );
+                }
+                if( ! bCompressed )
+                {
+                    System.out.print( "Compression of '" + strInputFilePath );
+                    if( bMerged )
+                    {
+                        System.out.println( "' and append content to file '" +  strOutputFilePath + "'" );
+                    }
+                    else
+                    {
+                        System.out.println( "' and create file '" +  strOutputFilePath + "'" );
+                    }
+
+                    switch( config.getCompressor() )
+                    {
+                        case CSS:
+                            CssCompressor compressorCSS = new CssCompressor( in );
+                            compressorCSS.compress( out, 0 );
+                            break;
+
+                        case JS:
+                            ErrorReporter reporter = new JsErrorReporter( strInputFilePath );
+                            JavaScriptCompressor compressorJS = new JavaScriptCompressor(in, reporter );
+                            compressorJS.compress( out, CSS, bMerged, bMerged, bMerged, bMerged );
+                            break;
+                    }
                 }
                 else
                 {
-                    System.out.println( "Copy content of file '" + strInputFilePath + "' into file '"  + strOutputFilePath + "'" );
-                }
-                if( out != null )
-                {
-                    int c;
-                    while( ( c = in.read()) != -1 )
+                    if( bMerged )
                     {
-                            out.write( c );
+                        System.out.println( "Append content of file '" + strInputFilePath + "' into file '"  + strOutputFilePath + "'" );
                     }
-                    out.write( ";\n" );  // prevent bad ending js
+                    else
+                    {
+                        System.out.println( "Copy content of file '" + strInputFilePath + "' into file '"  + strOutputFilePath + "'" );
+                    }
+                    if( out != null )
+                    {
+                        int c;
+                        while( ( c = in.read()) != -1 )
+                        {
+                                out.write( c );
+                        }
+                        out.write( ";\n" );  // prevent bad ending js
+                    }
+
                 }
-                
+                if( !bMerged )
+                {
+                    if( out != null )
+                    {
+                        out.close();
+                    }
+                }
             }
-            if( !bMerged )
+            if( bMerged )
             {
                 if( out != null )
                 {
                     out.close();
                 }
-            }
-        }
-        if( bMerged )
-        {
-            if( out != null )
-            {
-                out.close();
             }
         }
 
@@ -150,7 +153,10 @@ public class CompressorService
         GenericExtFilter filter = new GenericExtFilter( extension );
         File dir = new File( directory );
         String[] files = dir.list( filter );
-        Arrays.sort( files );
+        if( files != null )
+        {
+            Arrays.sort( files );
+        }
         return files;
     }
 
