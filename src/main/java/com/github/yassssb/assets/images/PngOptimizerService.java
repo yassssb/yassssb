@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 Pierre LEVY
+/* Copyright (c) 2018-2021 Pierre LEVY
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -28,8 +28,7 @@ import java.io.IOException;
 public class PngOptimizerService
 {
 
-//    private static final String COMPRESSOR_ZOPFLI = "zopfli";
-        private static final String COMPRESSOR_ZOPFLI = "";
+    private static final String COMPRESSOR_ZOPFLI = "";
     private static final int COMPRESSOR_ITERATIONS = 1;
     private static final String LOGLEVEL = "info";
     private static final boolean REMOVE_GAMME = true;

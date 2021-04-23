@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 Pierre LEVY
+/* Copyright (c) 2018-2021 Pierre LEVY
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -16,8 +16,6 @@
 package com.github.yassssb.util;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 Pierre LEVY
+/* Copyright (c) 2018-2021 Pierre LEVY
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -34,7 +34,6 @@ public class ImagesOptimizer
      * @param directory The current directory
      * @param strRelativePath The relative path from the root
      * @param strOutputPath the output root path
-     * @throws IOException If an error occurs
      */
     public static void processDirectory( File directory , String strRelativePath , String strOutputPath ) 
     {

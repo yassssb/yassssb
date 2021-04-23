@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 Pierre LEVY
+/* Copyright (c) 2018-2021 Pierre LEVY
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,6 +17,7 @@ package com.github.yassssb;
 import com.github.yassssb.assets.AssetsManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.github.yassssb.util.Utils;
 import freemarker.template.Configuration;
 import freemarker.template.MalformedTemplateNameException;
 import freemarker.template.Template;
@@ -25,6 +26,7 @@ import freemarker.template.TemplateExceptionHandler;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,22 +49,33 @@ public class SiteBuilder
      */
     public static void main(String[] args)
     {
+        boolean forceOptimization = false;
+        
+        if (args.length == 0)
+        {
+            System.out.println("The site path should be given at first argument.");
+            return;
+        }
+
         try
         {
 
-            if (args.length == 0)
+            for( int i = 0 ; i < args.length ; i++ )
             {
-                System.out.println("The site path should be given at first argument.");
-                return;
+                if( args[i].equals( "-f" ) ) // force optimization
+                {
+                    forceOptimization = true;
+                }
             }
-            String strSitePath = args[0];
+            
+            String strSitePath = args[ args.length -1 ];
             String strSiteFile = strSitePath + SITE_FILE;
 
             // Read YAML site file
             Site site = readYamlSiteFile(strSiteFile);
-
+            
             // Copy assets
-            AssetsManager.deploy( strSitePath , site.getConfig() );
+            AssetsManager.deploy( strSitePath , site.getConfig() , forceOptimization );
 
             // Generate pages
             generatePages(strSitePath, site.getPages());
@@ -156,7 +169,10 @@ public class SiteBuilder
             }
 
             String strOutputPath = strSitePath + OUTPUT_PATH;
-            FileWriter out = new FileWriter(strOutputPath + page.getPage());
+            String strPathFile = strOutputPath + page.getPage();
+            String strPathDir = strPathFile.substring( 0 , strPathFile.lastIndexOf('/'));
+            Utils.makeDir(strPathDir);
+            FileWriter out = new FileWriter( strPathFile );
             template.process(model, out);
             System.out.println( "Generating page " + page.getPage());
         }

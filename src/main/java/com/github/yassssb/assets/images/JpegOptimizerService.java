@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 Pierre LEVY
+/* Copyright (c) 2018-2021 Pierre LEVY
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -64,7 +64,6 @@ public class JpegOptimizerService
         Iterator<ImageReader> readers = ImageIO.getImageReaders(iis);
         ImageReader reader = (ImageReader) readers.next();
         reader.setInput(iis, false);
-        IIOMetadata metadata = reader.getImageMetadata(0);
         BufferedImage bi = reader.read(0);
         IIOImage image = new IIOImage( bi, null, null);
         

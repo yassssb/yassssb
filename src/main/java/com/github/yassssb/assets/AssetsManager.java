@@ -1,4 +1,4 @@
-/* Copyright (c) 2018 Pierre LEVY
+/* Copyright (c) 2018-2021 Pierre LEVY
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,10 +20,8 @@ import com.github.yassssb.util.Utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.io.FileUtils;
 
 /**
  * AssetsManager 
@@ -33,20 +31,20 @@ public class AssetsManager
     private static final String ASSETS_PATH = "/src/assets/";
     private static final String OUTPUT_PATH = "/dist/";
     private static final String IMAGES_DIR = "images";
-    private static final String FONTS_DIR = "fonts";
     private static final String CSS_DIR = "css";
     private static final String JS_DIR = "js";
     private static final String CONFIG_OPTIMIZE_IMAGE = "optimizeImages";
-    private static final String FALSE = "false";
 
     private static List<String> _listNoFollowDirs;
     
     /**
      * Deploy assets into dist directory
      * @param strRootPath The source root path
+     * @param config The configuration
+     * @param forceOptimization force image optimization
      * @throws IOException if an error occurs
      */
-    public static void deploy( String strRootPath , Map<String, Object> config ) throws IOException
+    public static void deploy( String strRootPath , Map<String, Object> config, boolean forceOptimization ) throws IOException
     {
         System.out.println( "\n\n ############# DEPLOYING ASSETS ##############\n" );
         _listNoFollowDirs = new ArrayList<>();
@@ -55,7 +53,7 @@ public class AssetsManager
 
         // Optimize and copy images
         System.out.println( "\n\n ############# Optimizing PNG and JPEG images ##############\n" );
-        boolean bOptimizeImages = (boolean) config.get( CONFIG_OPTIMIZE_IMAGE );
+        boolean bOptimizeImages = (boolean) config.get( CONFIG_OPTIMIZE_IMAGE ) || forceOptimization;
         if( !bOptimizeImages )
         {
             System.out.println( "- Optimization is disabled in site.yml" );
